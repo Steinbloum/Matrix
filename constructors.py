@@ -31,7 +31,8 @@ r = RandomWord()
 
 
 client = Client(os.getenv("PUBLICAPI"), os.getenv("PRIVATEAPI"))
-
+path_to_data = os.getenv("PATHTODATA")
+print(path_to_data)
 io = Io()
 
 
@@ -89,9 +90,6 @@ class Constructor:
         # print(df)
         return df
 
-    def save_csv(self, df, ticker, tf):
-        df.to_csv("raw_files/agg/{}{}_{}".format(ticker, tf, len(df)))
-
     def apply_indics(self, df):
         df["mfi"] = money_flow_index(df.high, df.low, df.close, df.volume)
         df["macd"] = macd(df.close)
@@ -144,12 +142,13 @@ class Constructor:
         df = df.reset_index()
         if to_csv:
             if overwrite:
-                outdir = "raw_files/{}/{}".format(ticker, tf)
+                outdir = "{}/{}/{}".format(path_to_data, ticker, tf)
                 if not os.path.exists(outdir):
                     os.makedirs(outdir)
                 print("creating csv")
                 df.to_csv(
-                    "raw_files/{}/{}/{}_{}.csv".format(
+                    "{}/{}/{}/{}_{}.csv".format(
+                        path_to_data,
                         ticker,
                         tf,
                         ticker,
@@ -157,7 +156,7 @@ class Constructor:
                     )
                 )
             elif not overwrite:
-                if os.path.isdir("{}/{}/{}".format(path, pair, tf)):
+                if os.path.isdir("{}/{}/{}".format(path_to_data, ticker, tf)):
                     print("data already stored")
 
             print("All done")
@@ -181,7 +180,7 @@ class Constructor:
         call = self.get_ticker_tf(call_name)
         ticker = "{}{}".format(call["coin"], call["pair"])
         tf = call["tf"]
-        path_to_file = "raw_files/{}/{}/{}_{}.csv".format(ticker, tf, ticker, tf)
+        path_to_file = "{}/{}/{}/{}_{}.csv".format(path_to_data, ticker, tf, ticker, tf)
         if os.path.isfile(path_to_file):
             # print("Data on {} found".format(call_name))
             df = pd.read_csv(path_to_file)
@@ -197,7 +196,8 @@ class Constructor:
         tf = call["tf"]
 
         df = pd.read_csv(
-            "raw_files/{}/{}/{}_{}.csv".format(ticker, tf, ticker, tf), index_col=0
+            "{}/{}/{}/{}_{}.csv".format(path_to_data, ticker, tf, ticker, tf),
+            index_col=0,
         )
         if len(df) > max_rows:
             df = self.set_max_rows(df, max_rows)
@@ -308,16 +308,19 @@ class Constructor:
             os.makedirs(path)
         return path
 
-    def get_random_sim_list(self, amount):
-        run = True
+    def get_random_sim_list(self, amount, max_klines, conditions=True):
         ls = []
-
-        for n in range(amount):
-            lssimis = random.choice(os.listdir("raw_files"))
-            tfs = random.choice(["1m", "5m", "30m", "1h"])
-            pair = lssimis + tfs
-            if not pair in ls:
-                ls.append(pair)
+        while len(ls) < amount:
+            for n in range(amount):
+                lssimis = random.choice(os.listdir(path_to_data))
+                tfs = random.choice(["1m", "5m", "15m", "30m", "1h", "4h", "1d"])
+                pair = lssimis + tfs
+                if not pair in ls:
+                    if conditions:
+                        if self.check_for_data(pair, max_klines):
+                            ls.append(pair)
+                        else:
+                            io.print_warning("NO DATA FOR {}".format(pair))
 
         print(ls)
         return ls
@@ -335,13 +338,13 @@ class Constructor:
         return ls
 
     def delete_up_down(self, up="up", down="down"):
-        ls = os.listdir("raw_files")
+        ls = os.listdir(path_to_data)
         for pair in ls:
             if "UP" in pair:
-                shutil.rmtree("raw_files/{}".format(pair))
+                shutil.rmtree("{}/{}".format(path_to_data, pair))
                 print("{} is deleted".format(pair))
             if "DOWN" in pair:
-                shutil.rmtree("raw_files/{}".format(pair))
+                shutil.rmtree("{}}/{}".format(path_to_data, pair))
                 print("{} is deleted".format(pair))
 
 

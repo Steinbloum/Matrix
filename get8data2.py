@@ -2,10 +2,12 @@ from constructors import Constructor
 import os
 import time
 from datetime import datetime
+from constructors import path_to_data
+
 
 start = datetime.now()
 c = Constructor()
-path = "raw_files"
+path = path_to_data
 
 ls = c.get_pair_list()
 print(ls)

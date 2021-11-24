@@ -1,7 +1,6 @@
 from datetime import datetime
 from constructors import Constructor
 from inputoutput import Io
-from refactbot import Marketbolbot
 from simulators import Simulator
 from subbots import Bolbot
 import time
@@ -13,7 +12,14 @@ c = Constructor()
 
 
 class Matrix:
-    def __init__(self, balance=100000, max_klines=5000, save_files=True):
+    def __init__(
+        self,
+        balance=100000,
+        max_klines=5000,
+        save_files=True,
+        random=True,
+        sim_amount=5,
+    ):
 
         self.name = c.create_name()
         self.sims = []
@@ -24,20 +30,19 @@ class Matrix:
         self.simulator = None
         self.max_klines = max_klines
         self.save = save_files
+        self.random = random
+        self.sim_amount = sim_amount
         c.create_dir("reports/{}".format(self.name))
         io.print_bull("SESSION {} INITIATED".format(self.name))
 
     def init_bots(self):
         for sim in self.active_sims:
-            # print("init bots {}".format(sim.name))
             for bot in self.bots:
                 # print(bot)
                 bot = bot[0](sim, bot[1], self.balance * 0.1, bot[2])
                 bot.name_bot()
-                # print(bot.balance)
                 self.active_bots.append(bot)
             for bot in self.active_bots:
-                # print(self.active_bots)
                 bot.wake_up()
                 bot.set_matrix_name(self.name)
 
@@ -92,6 +97,7 @@ class Matrix:
                 bot.get_reports()
         except IndexError as e:
             print(e)
+            os.open("reports/{}".format(self.name))
 
     def get_matrix_results(self):
         df = None
@@ -101,7 +107,7 @@ class Matrix:
             else:
                 df = df.append(bot.get_results(self.name), ignore_index=True)
 
-                df.to_csv("reports/matrix{}.csv".format(datetime.now()))
+                df.to_csv("reports/{}/{}_report.csv".format(self.name, self.name))
                 df = df.sort_values(by="adjusted_roi", ascending=False)
         df = df.round(
             {
@@ -133,27 +139,16 @@ class Matrix:
             )
 
     def init_sims(self):
+        if self.random:
+            print("random choosing")
+            self.sims = c.get_random_sim_list(
+                5, conditions=True, max_klines=self.max_klines
+            )
+        print(self.sims)
+
         for sim in self.sims:
             if c.check_for_data(sim, self.max_klines):
                 sim = Simulator(sim, max_rows=self.max_klines)
                 self.active_sims.append(sim)
             else:
                 io.print_warning("NO DATA ON {}".format(sim))
-
-
-start_time = datetime.now()
-matrix = Matrix(max_klines=5000)
-matrix.bots = [
-    [Bolbot, "Bolbot", "tight"],
-    [Bolbot, "Bolbot", "loose"],
-    [Bolbot, "Bolbot", "standard"],
-]
-matrix.sims = c.get_random_sim_list(5)
-print(matrix.sims)
-input()
-matrix.run()
-end_time = datetime.now()
-print(
-    "Analysed {} candles in {}.".format(2000 * len(matrix.sims), end_time - start_time)
-)
-io.print_warning("SESSION {} TERMINATED".format(matrix.name))

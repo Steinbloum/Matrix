@@ -48,11 +48,9 @@ class Bot:
 
     def name_bot(self, custom=False):
         if custom == False:
-            self.name = "{}_the_{}_{}_{}".format(
+            self.name = "{}_the_{}".format(
                 names.get_first_name(gender="female"),
                 r.word(include_parts_of_speech=["adjectives"]),
-                self.preset,
-                self.style,
             )
         else:
             name = input("enter a name")
@@ -126,6 +124,8 @@ class Bot:
         dfr = pd.DataFrame(
             {
                 "name": self.name,
+                "class": self.style,
+                "preset": self.preset,
                 "date": time_span,
                 "trades": trades,
                 "won": wt,
