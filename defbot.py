@@ -44,7 +44,7 @@ class Bot:
 
         self.trade_history = None
         self.name = name
-        self.load_attributes("bot_config.json")
+        # self.load_attributes("bot_config.json")
         self.row = None
 
     def name_bot(self, custom=False):

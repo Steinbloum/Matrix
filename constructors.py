@@ -335,7 +335,7 @@ class Constructor:
 
     def add_to_json(self, json_file, new_config, bot_type):
         with open(json_file, "r") as file:
-            # stock = json.load(file)
+            stock = json.load(file)
             ls = json.loads(stock)
             for item in ls:
                 try:
@@ -346,6 +346,7 @@ class Constructor:
                     with open(json_file, "w") as file:
                         json.dump(json.dumps(ls), file)
                         print("config stored")
+                        break
 
     def create_bot_config(self, bot):
         """set the paramters and return a dict to append to json"""
