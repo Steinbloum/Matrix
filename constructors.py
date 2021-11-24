@@ -338,11 +338,17 @@ class Constructor:
             stock = json.load(file)
             ls = json.loads(stock)
             for item in ls:
+                print(item)
                 try:
-                    item[bot_type]["preset"]
+                    item[bot_type]["preset"] == new_config[bot_type]["preset"]
                 except KeyError:
-                    print("New bot: appending config")
+
+                    continue
+                if item[bot_type]["preset"] == new_config[bot_type]["preset"]:
+                    print("preset already stored")
+                else:
                     ls.append(new_config)
+                    print("appending config")
                     with open(json_file, "w") as file:
                         json.dump(json.dumps(ls), file)
                         print("config stored")
@@ -357,6 +363,12 @@ class Constructor:
                 params[bot.style][key] = input("enter the param for {}\n".format(key))
 
         return params
+
+    def see_json(self, json_file):
+        with open(json_file, "r") as file:
+            stock = json.load(file)
+            ls = json.loads(stock)
+            print(stock)
 
 
 c = Constructor()
@@ -526,3 +538,6 @@ class Plotter:
         fig.update_yaxes(title_text="<b>Asset price</b>", secondary_y=False)
         fig.update_yaxes(title_text="<b>Bot balance</b>", secondary_y=True)
         fig.write_image("{}/perfo.png".format(path))
+
+
+c.see_json("bot_config.json")

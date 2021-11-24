@@ -84,6 +84,6 @@ class Fomobot(Bot):
         return params_dict
 
 
-new = c.create_bot_config(Fomobot("ETHUSD5m", "Fomobot", 10, "standard"))
+new = c.create_bot_config(Fomobot("ETHUSD5m", "Fomobot", 10, "5xornothing"))
 print(new)
 c.add_to_json("bot_config.json", new, "Fomobot")
