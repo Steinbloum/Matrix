@@ -14,11 +14,11 @@ c = Constructor()
 class Matrix:
     def __init__(
         self,
+        sim_amount=10,
         balance=100000,
         max_klines=5000,
         save_files=True,
         random=True,
-        sim_amount=5,
     ):
 
         self.name = c.create_name()
@@ -43,7 +43,7 @@ class Matrix:
                 bot.name_bot()
                 self.active_bots.append(bot)
             for bot in self.active_bots:
-                bot.wake_up()
+                # bot.wake_up()
                 bot.set_matrix_name(self.name)
 
     def add_bot(self, bot):
@@ -62,6 +62,7 @@ class Matrix:
                     for bot in self.active_bots:
                         bot.run_main()
             for bot in self.active_bots:
+                bot.set_row(n)
                 if bot.position_open:
                     updated = c.update_position_infos(
                         bot.sim, bot.trade_history, bot.trade_count
@@ -93,6 +94,7 @@ class Matrix:
                             bot.close()
 
             self.get_matrix_results()
+            io.print_statement("Generating reports, can take a while")
             for bot in self.active_bots:
                 bot.get_reports()
         except IndexError as e:
@@ -142,7 +144,7 @@ class Matrix:
         if self.random:
             print("random choosing")
             self.sims = c.get_random_sim_list(
-                5, conditions=True, max_klines=self.max_klines
+                self.sim_amount, conditions=True, max_klines=self.max_klines
             )
         print(self.sims)
 

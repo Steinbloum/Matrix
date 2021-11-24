@@ -25,12 +25,13 @@ from plotly.subplots import make_subplots
 from wonderwords import RandomWord
 import random
 import shutil
+import json
 
 
 r = RandomWord()
 
 
-client = Client(os.getenv("PUBLICAPI"), os.getenv("PRIVATEAPI"))
+# client = Client(os.getenv("PUBLICAPI"), os.getenv("PRIVATEAPI"))
 path_to_data = os.getenv("PATHTODATA")
 print(path_to_data)
 io = Io()
@@ -214,21 +215,6 @@ class Constructor:
             amount *= 0.0002
             return amount
 
-    def init_bot_config(self):
-        pass
-
-    def store_bot_config(self, bot):
-
-        # make dict:
-        bot_config = {
-            "style": {
-                "buy_signals": ["boldowncross"],
-                "sell_signals": ["boldowncross"],
-                "sl": 0.95,
-                "leverage": 1,
-            }
-        }
-
     def get_chart_graph(self, df, start_index, end_index, trade_history, trade_number):
         # print(df)
         df = df.iloc[start_index:end_index]
@@ -346,6 +332,30 @@ class Constructor:
             if "DOWN" in pair:
                 shutil.rmtree("{}}/{}".format(path_to_data, pair))
                 print("{} is deleted".format(pair))
+
+    def add_to_json(self, json_file, new_config, bot_type):
+        with open(json_file, "r") as file:
+            # stock = json.load(file)
+            ls = json.loads(stock)
+            for item in ls:
+                try:
+                    item[bot_type]["preset"]
+                except KeyError:
+                    print("New bot: appending config")
+                    ls.append(new_config)
+                    with open(json_file, "w") as file:
+                        json.dump(json.dumps(ls), file)
+                        print("config stored")
+
+    def create_bot_config(self, bot):
+        """set the paramters and return a dict to append to json"""
+        params = bot.get_params_dict()
+        print(params)
+        for key, value in params[bot.style].items():
+            if key != "preset":
+                params[bot.style][key] = input("enter the param for {}\n".format(key))
+
+        return params
 
 
 c = Constructor()
@@ -515,6 +525,3 @@ class Plotter:
         fig.update_yaxes(title_text="<b>Asset price</b>", secondary_y=False)
         fig.update_yaxes(title_text="<b>Bot balance</b>", secondary_y=True)
         fig.write_image("{}/perfo.png".format(path))
-
-
-c.get_pair_list()

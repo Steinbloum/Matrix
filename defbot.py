@@ -45,6 +45,7 @@ class Bot:
         self.trade_history = None
         self.name = name
         self.load_attributes("bot_config.json")
+        self.row = None
 
     def name_bot(self, custom=False):
         if custom == False:
@@ -315,8 +316,11 @@ class Bot:
                 for key, value in item.items():
                     if self.style == key:
                         if value["preset"] == self.preset:
-                            print("preset found")
+                            # print("preset found")
                             self.sl = value["sl"]
 
     def set_matrix_name(self, name):
         self.matrix_name = name
+
+    def set_row(self, row):
+        self.row = row
