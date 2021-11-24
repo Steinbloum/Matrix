@@ -126,6 +126,7 @@ class Constructor:
     def get_historical_klines_from_binance(
         self, ticker, tf, start_date, end_date="today", to_csv=True, overwrite=True
     ):
+        client = Client(os.getenv("PUBLICAPI"), os.getenv("PRIVATEAPI"))
         print("Getting klines for {}-{}".format(ticker, tf))
         klines = client.get_historical_klines(ticker, tf, start_date, end_date)
         print("processing {} klines.".format(len(klines)))
