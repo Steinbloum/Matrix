@@ -335,25 +335,34 @@ class Constructor:
                 print("{} is deleted".format(pair))
 
     def add_to_json(self, json_file, new_config, bot_type):
+        ls = []
         with open(json_file, "r") as file:
-            stock = json.load(file)
-            ls = json.loads(stock)
-            for item in ls:
-                print(item)
-                try:
-                    item[bot_type]["preset"] == new_config[bot_type]["preset"]
-                except KeyError:
+            if os.stat(json_file).st_size == 0:
+                ls.append(new_config)
+                print("appending config")
+                with open(json_file, "w") as file:
+                    json.dump(json.dumps(ls), file)
+                    print("config stored")
+                    return new_config
+            else :
+                stock = json.load(file)
+                ls = json.loads(stock)
+                for item in ls:
+                    print(item)
+                    try:
+                        item[bot_type]["preset"] == new_config[bot_type]["preset"]
+                    except KeyError:
 
-                    continue
-                if item[bot_type]["preset"] == new_config[bot_type]["preset"]:
-                    print("preset already stored")
-                else:
-                    ls.append(new_config)
-                    print("appending config")
-                    with open(json_file, "w") as file:
-                        json.dump(json.dumps(ls), file)
-                        print("config stored")
-                        break
+                        continue
+                    if item[bot_type]["preset"] == new_config[bot_type]["preset"]:
+                        print("preset already stored")
+                    else:
+                        ls.append(new_config)
+                        print("appending config")
+                        with open(json_file, "w") as file:
+                            json.dump(json.dumps(ls), file)
+                            print("config stored")
+                            break
 
     def create_bot_config(self, bot):
         """set the paramters and return a dict to append to json"""
@@ -541,4 +550,4 @@ class Plotter:
         fig.write_image("{}/perfo.png".format(path))
 
 
-c.see_json("bot_config.json")
+

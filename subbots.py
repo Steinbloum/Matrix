@@ -42,15 +42,16 @@ class Fomobot(Bot):
         super().__init__(sim, style, balance, preset)
         self.buy = False
         self.sell = False
-        self.period = None
-        self.trigger_buy = None
-        self.trigger_sl = None
-        self.trigger_sell = None
+        self.params=self.load_attributes("bot_config.json")
+        self.trigger_buy = float(self.params['trigger_buy'])
+        self.trigger_sl = float(self.params['trigger_sl'])
+        self.trigger_sell = float(self.params['trigger_sell'])
+        self.period = int(self.params['period'])
 
     def get_buy_signal(self):
         if (
             self.sim.df["close"]
-            > self.sim.raw_df["close"].iloc[self.row - self.trigger_sl]
+            > self.sim.raw_df["close"].iloc[self.row - self.period]
             * self.trigger_buy
         ):
             return True
@@ -79,11 +80,12 @@ class Fomobot(Bot):
                 "trigger_buy": "",
                 "trigger_sl": "",
                 "trigger_sell": "",
+                'period':''
             }
         }
         return params_dict
 
 
-new = c.create_bot_config(Fomobot("ETHUSD5m", "Fomobot", 10, "5xornothing"))
-print(new)
-c.add_to_json("bot_config.json", new, "Fomobot")
+# new = c.create_bot_config(Fomobot("ETHUSD5m", "Fomobot", 10, "5xornothing"))
+# print(new)
+# c.add_to_json("bot_config.json", new, "Fomobot")

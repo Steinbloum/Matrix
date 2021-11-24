@@ -1,11 +1,8 @@
 import json
+from subbots import Fomobot, Bolbot
+from constructors import Constructor
 
-with open("bot_config.json") as file:
-    file = json.load(file)
-    print(file)
-    file = json.dumps(file)
+c = Constructor()
 
-print(type(file))
-
-# with open("bot_config.json", "w") as file2:
-#     json.dump(file, file2)
+cfg = c.create_bot_config(Fomobot('ETHUSDT15m', 'Fomobot', 1, '5xornothing'))
+c.add_to_json('bot_config.json', cfg, 'Fomobot')

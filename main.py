@@ -1,15 +1,15 @@
 from matrix import Matrix
 from datetime import datetime
-from subbots import Bolbot
+from subbots import Bolbot, Fomobot
 from inputoutput import Io
 
 
 io = Io()
 start_time = datetime.now()
-matrix = Matrix(max_klines=3000, sim_amount=10)
+matrix = Matrix(max_klines=3000, sim_amount=8)
 matrix.bots = [
-    [Bolbot, "Bolbot", "tight"],
-    [Bolbot, "Bolbot", "loose"],
+    [Fomobot, "Fomobot", "standard"],
+    [Fomobot, "Fomobot", "5xornothing"]
 ]
 
 matrix.run()

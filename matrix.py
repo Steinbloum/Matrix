@@ -60,9 +60,10 @@ class Matrix:
                 for sim in self.active_sims:
                     sim.update_df(n)
                     for bot in self.active_bots:
+                        bot.set_row(n)
                         bot.run_main()
             for bot in self.active_bots:
-                bot.set_row(n)
+
                 if bot.position_open:
                     updated = c.update_position_infos(
                         bot.sim, bot.trade_history, bot.trade_count
