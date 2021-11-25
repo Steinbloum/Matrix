@@ -1,7 +1,6 @@
 import json
 from os import close, error, name
 
-from numpy import short
 from simulators import Simulator
 from constructors import Constructor, Plotter
 from inputoutput import Io
@@ -150,7 +149,7 @@ class Bot:
 
     def store_history(self, value, size, side, motive, pnl, fees):
         time = self.sim.df["Date"]
-        price = self.sim.get_last("close")
+        price = self.sim.df["close"]
         wallet = self.balance
         trade_count = self.trade_count
         if self.trade_history is None:
@@ -334,3 +333,6 @@ class Bot:
 
     def set_row(self, row):
         self.row = row
+
+
+bao = Bot("ETHUSDT15m", "baobot", 1000, "std")

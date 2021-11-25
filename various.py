@@ -27,3 +27,8 @@ str2 = "False"
 str3 = "qsfqdsf"
 
 print("{}{}".format(eval(str), eval(str2)))
+position = None
+if position:
+    print(True)
+else:
+    print(False)

@@ -32,6 +32,7 @@ class Simulator:
             d.resize_df(d.load_df_from_raw_file(self.name), min_rows)
         )
         self.df = d.get_row(self.raw_df, 0)
+        self.min_rows = min_rows
         io.print_bull("sim {} loaded".format(self.name))
 
     def update_df(self, row):
