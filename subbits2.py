@@ -20,24 +20,25 @@ class Bolbot(Bot):
         self.bias = self.params["bias"]
 
     def get_signal(self):
+        dicta = {}
         if self.position is not None:
             if (
                 self.position["value"]
                 <= b.get_entry_value(self.trade_history, self.trade_count)
                 * self.params["trigger_sl"]
             ):
-                sl = True
+                dicta['sl'] = True
             else:
-                sl = False
-        sl = False
+                dicta['sl'] = False
+        dicta['sl' = False
         if self.sim.get_last("bolupcross") != 0:
-            sell = True
+            dicta['sell'] = True
         elif self.sim.get_last("boldowncross") != 0:
-            buy = True
+            dicta['buy'] = True
         else:
-            sell = False
-            buy = False
-        return {"buy": buy, "sell": sell, "sl": sl}
+            dicta['sell'] = False
+            dicta['buy'] = False
+        return dicta
 
     def run_main(self):
 

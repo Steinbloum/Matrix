@@ -296,7 +296,7 @@ class Bot_manager:
             c.add_to_json(config_file, params, bot.style)
         return params
 
-    def get_results(self, trade_history, name, style, preset):
+    def get_results(self, trade_history, name, style, preset, raw_df):
         if len(trade_history.loc[trade_history['motive'] != ' INIT']) == 0:
             print('no trades for {}'.format(name))
             return False
@@ -305,27 +305,25 @@ class Bot_manager:
             wt = len(trade_history.loc[trade_history['pnl'] > 0 ])
             lt = trades-wt
             wr = wt/trades*100
-            pnl = 
-            roi = trade_history['wallet'].iloc[-1]/trade_history['wallet'].iloc[0] * 100
+            pnl = sum(trade_history['pnl'].loc[trade_history['motive'] != 'INIT'])
+            fees = sum(trade_history['fees'].loc[trade_history['motive'] != 'INIT'])
+            roi = pnl/trade_history['wallet'].iloc[0] * 100
+            tspan = raw_df['Date'].iloc[-1]-raw_df['Date'].iloc[0]
             df = pd.DataFrame({
                 'name' : name,
                 'type' : style,
                 'preset' : preset,
                 'trades' : trades,
+                'time-span': tspan,
                 'winning_trades' : wt,
                 'win_rate' : wr, 
                 'pnl' : pnl,
                 'roi':roi,
                 'fees' : fees,
                 'adj_pnl' : pnl-fees,
-                'adj_roi' : 
-
-
-
-
-
-
+                'adj_roi' : trade_history['wallet'].iloc[-1]/trade_history['wallet'].iloc[0] * 100
             })
+            return df
 
 
 
