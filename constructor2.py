@@ -212,7 +212,7 @@ class Bot_manager:
         if value < 0:
             value *= -1
             size *= -1
-        print(position_info["side"])
+        # print(position_info["side"])
         position_info["value"] += value
         position_info["size"] += size
         position_info["fees"] = self.get_fees(value)
@@ -221,11 +221,11 @@ class Bot_manager:
     def sell_market(self, value, size, position_info):
         size = -size
         """appends to the position dict"""
-        print(position_info["side"])
+        # print(position_info["side"])
         position_info["value"] -= value
         position_info["size"] += size
         position_info["fees"] = self.get_fees(-value)
-        print(value)
+        # print(value)
         return {"value": value, "size": size, "fees": self.get_fees(value)}
 
     def store_transaction(
@@ -277,7 +277,7 @@ class Bot_manager:
         try:
             position_info["value"] = position_info["size"] * sim.get_last("close")
         except TypeError:
-            print("NO POSITION")
+            ("NO POSITION")
 
     def get_entry_value(self, trade_history, trade_count):
         """returns the initila position value"""
@@ -316,8 +316,8 @@ class Bot_manager:
                 'name' : name,
                 'type' : style,
                 'preset' : preset,
-                'trades' : trades,
                 'time-span': tspan,
+                'trades' : trades,
                 'winning_trades' : wt,
                 'win_rate' : wr, 
                 'pnl' : pnl,
