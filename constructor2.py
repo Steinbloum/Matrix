@@ -273,7 +273,11 @@ class Bot_manager:
         return amount
 
     def update_value(self, sim, position_info):
-        position_info["value"] = position_info["size"] * sim.get_last("close")
+        """updates the value of the position"""
+        try:
+            position_info["value"] = position_info["size"] * sim.get_last("close")
+        except TypeError:
+            ("NO POSITION")
 
     def get_entry_value(self, trade_history, trade_count):
         """returns the initila position value"""

@@ -20,9 +20,26 @@ class Bolbot(Bot):
         self.bias = self.params["bias"]
 
     def get_signal(self):
-        pass
+        if self.position is not None:
+            if (
+                self.position["value"]
+                <= b.get_entry_value(self.trade_history, self.trade_count)
+                * self.params["trigger_sl"]
+            ):
+                sl = True
+            else:
+                sl = False
+        sl = False
+        if self.sim.get_last("bolupcross") != 0:
+            sell = True
+        elif self.sim.get_last("boldowncross") != 0:
+            buy = True
+        else:
+            sell = False
+            buy = False
+        return {"buy": buy, "sell": sell, "sl": sl}
 
-    def run(self):
+    def run_main(self):
 
         b.update_value(self.sim, self.position)
         signal = self.get_signal()
@@ -54,3 +71,9 @@ sim = Simulator("ETHUSDT15m", 2000)
 
 bot = Bolbot(sim, "Bolbot", "standard")
 print(bot.sl_trigger)
+print(sim.df)
+print(sim.get_last("close"))
+for n in range(500):
+    sim.update_df(n)
+    bot.run_main()
+    print(bot.trade_history)
