@@ -79,33 +79,13 @@ class Bot:
         else:
 
             if self.position["side"] == "long":
-                if self.sell_signal:
-                    sell = b.sell_market(
-                        self.position["value"], self.position["size"], self.position
-                    )
-                    print(sell)
-                    print(self.position)
-                    self.exec_order(sell)
-                    print(self.position)
-                    b.store_transaction(
-                        self.sim,
-                        self.trade_history,
-                        self.position,
-                        sell,
-                        "tp",
-                        "sell",
-                        sell["fees"],
-                        self.wallet,
-                        self.trade_count,
-                        pnl=True,
-                    )
-                    self.close()
+
                 if self.sl_signal:
                     sell = b.sell_market(
                         self.position["value"], self.position["size"], self.position
                     )
-                    print(sell)
-                    print(self.position)
+                    # print(sell)
+                    # print(self.position)
                     self.exec_order(sell)
                     print(self.position)
                     b.store_transaction(
@@ -122,8 +102,50 @@ class Bot:
                     )
                     self.close()
 
+                elif self.sell_signal:
+                    sell = b.sell_market(
+                        self.position["value"], self.position["size"], self.position
+                    )
+                    # print(sell)
+                    # print(self.position)
+                    self.exec_order(sell)
+                    print(self.position)
+                    b.store_transaction(
+                        self.sim,
+                        self.trade_history,
+                        self.position,
+                        sell,
+                        "tp",
+                        "sell",
+                        sell["fees"],
+                        self.wallet,
+                        self.trade_count,
+                        pnl=True,
+                    )
+                    self.close()
+                
+
             elif self.position["side"] == "short":
-                if self.buy_signal:
+                if self.sl_signal:
+                    buy = b.buy_market(
+                        self.position["value"], self.position["size"], self.position
+                    )
+                    self.exec_order(buy)
+                    b.store_transaction(
+                        self.sim,
+                        self.trade_history,
+                        self.position,
+                        buy,
+                        "sl",
+                        "buy",
+                        buy["fees"],
+                        self.wallet,
+                        self.trade_count,
+                        pnl=True,
+                    )
+                    self.close()
+
+                elif self.buy_signal:
                     buy = b.buy_market(
                         self.position["value"], self.position["size"], self.position
                     )
@@ -141,24 +163,7 @@ class Bot:
                         pnl=True,
                     )
                     self.close()
-                elif self.sl_signal:
-                    buy = b.buy_market(
-                        self.position["value"], self.position["size"], self.position
-                    )
-                    self.exec_order(buy)
-                    b.store_transaction(
-                        self.sim,
-                        self.trade_history,
-                        self.position,
-                        buy,
-                        "tp",
-                        "buy",
-                        buy["fees"],
-                        self.wallet,
-                        self.trade_count,
-                        pnl=True,
-                    )
-                    self.close()
+                
 
     def open(self, side):
         """initialises a dict for self.position,

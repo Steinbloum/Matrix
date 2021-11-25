@@ -1,3 +1,4 @@
+import re
 from bot import Bot
 from simulators import Simulator
 from constructor2 import c, d, b
@@ -14,36 +15,44 @@ class Bolbot(Bot):
     def __init__(self, sim, style, preset, wallet=1000):
         super().__init__(sim, style, preset, wallet=wallet)
         self.params = b.load_attributes("bot_config.json", self.style, preset)
-        self.trade_amount = self.params["trade amount"]
-        self.sl_trigger = self.params["trigger_sl"]
+        self.trade_amount = float(self.params["trade amount"])
+        self.sl_trigger = float(self.params["trigger_sl"])
         self.wait = eval(self.params["wait for reentry"])
         self.bias = self.params["bias"]
 
     def get_signal(self):
         dicta = {}
+        # if self.position is not None:
+            # print('Noen NOen')
+            # print(self.position['value'])
+            # print(b.get_entry_value(self.trade_history, self.trade_count) * self.sl_trigger)
+            # input()
         if self.position is not None:
-            if (
-                self.position["value"]
-                <= b.get_entry_value(self.trade_history, self.trade_count)
-                * self.params["trigger_sl"]
-            ):
+            if self.position["value"]<= float(b.get_entry_value(self.trade_history, self.trade_count)) * self.sl_trigger:
                 dicta['sl'] = True
+                return{'sl': True, 'buy':False, 'sell':False}
             else:
                 dicta['sl'] = False
-        dicta['sl' = False
+        dicta['sl'] = False
         if self.sim.get_last("bolupcross") != 0:
             dicta['sell'] = True
+            dicta['buy'] = False
         elif self.sim.get_last("boldowncross") != 0:
             dicta['buy'] = True
+            dicta['sell'] = False
         else:
             dicta['sell'] = False
             dicta['buy'] = False
+        # print(dicta)
         return dicta
 
     def run_main(self):
 
         b.update_value(self.sim, self.position)
         signal = self.get_signal()
+        print(signal)
+        print(self.position)
+
         self.buy_signal = signal["buy"]
         self.sell_signal = signal["sell"]
         self.sl_signal = signal["sl"]
@@ -77,4 +86,6 @@ print(sim.get_last("close"))
 for n in range(500):
     sim.update_df(n)
     bot.run_main()
-    print(bot.trade_history)
+    print(bot.trade_history.tail(2))
+print(b.get_results(bot.trade_history, bot.name, bot.style, bot.preset, bot.sim.raw_df))
+

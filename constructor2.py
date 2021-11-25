@@ -277,12 +277,15 @@ class Bot_manager:
         try:
             position_info["value"] = position_info["size"] * sim.get_last("close")
         except TypeError:
-            ("NO POSITION")
+            print("NO POSITION")
 
     def get_entry_value(self, trade_history, trade_count):
         """returns the initila position value"""
         df = trade_history.loc[trade_history["trade_count"] == trade_count]
-        return df.iloc[0]
+        # print(df['value'].iloc[0])
+        # print(type(df['value'].iloc[0]))
+        return df['value'].iloc[0]
+
 
     def create_config(self, config_file, bot, save = True):
         """set the paramters, return a dict to append to json"""
@@ -305,7 +308,7 @@ class Bot_manager:
             wt = len(trade_history.loc[trade_history['pnl'] > 0 ])
             lt = trades-wt
             wr = wt/trades*100
-            pnl = sum(trade_history['pnl'].loc[trade_history['motive'] != 'INIT'])
+            pnl = sum(filter(None, trade_history['pnl'].loc[trade_history['motive'] != 'INIT']))
             fees = sum(trade_history['fees'].loc[trade_history['motive'] != 'INIT'])
             roi = pnl/trade_history['wallet'].iloc[0] * 100
             tspan = raw_df['Date'].iloc[-1]-raw_df['Date'].iloc[0]
@@ -321,8 +324,9 @@ class Bot_manager:
                 'roi':roi,
                 'fees' : fees,
                 'adj_pnl' : pnl-fees,
-                'adj_roi' : trade_history['wallet'].iloc[-1]/trade_history['wallet'].iloc[0] * 100
-            })
+                'adj_roi' : trade_history['wallet'].iloc[-1]/trade_history['wallet'].iloc[0] * 100 -100
+            }, index=[0])
+            print(df)
             return df
 
 
