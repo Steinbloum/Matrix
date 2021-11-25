@@ -10,8 +10,9 @@ from ta.volatility import (
 import os
 import pandas as pd
 import names
-from wonderwords import RandomWord*
+from wonderwords import RandomWord
 import json
+
 
 r = RandomWord()
 
@@ -148,16 +149,113 @@ class Bot_manager:
                         if value["preset"] == self.preset:
                             return value
                         else:
-                            print('WARNING NO CONFIG FOUND')
+                            print("WARNING NO CONFIG FOUND")
                             return False
+
+    def init_history(self, sim, wallet):
+        """Initalises the trade history Dataframe"""
+        df = pd.DataFrame(
+            {
+                "Date": sim.get_last("Date"),
+                "price": sim.get_last("close"),
+                "size": None,
+                "value": None,
+                "side": None,
+                "motive": "INIT",
+                "pnl": None,
+                "fees": None,
+                "wallet": wallet,
+                "trade_count": 0,
+                "position side": None,
+            },
+            index=[0],
+        )
+        return df
+
+    def buy_market(self, value, size, position_info):
+        """appends to the position dict"""
+        if value < 0:
+            value *= -1
+            size *= -1
+        print(position_info["side"])
+        position_info["value"] += value
+        position_info["size"] += size
+        position_info["fees"] = self.get_fees(value)
+        return {"value": value, "size": size, "fees": self.get_fees(value)}
+
+    def sell_market(self, value, size, position_info):
+        size = -size
+        """appends to the position dict"""
+        print(position_info["side"])
+        position_info["value"] -= value
+        position_info["size"] += size
+        position_info["fees"] = self.get_fees(-value)
+        print(value)
+        return {"value": value, "size": size, "fees": self.get_fees(value)}
+
+    def store_transaction(
+        self,
+        sim,
+        trade_history,
+        position_info,
+        order,
+        motive,
+        side,
+        fees,
+        balance,
+        trade_count,
+        pnl=None,
+    ):
+        if pnl:
+            df = trade_history.loc[
+                trade_history["trade_count"] == position_info["trade count"]
+            ]
+            if position_info["side"] == "long":
+                pnl = order["value"] - df["value"].iloc[-1]
+            elif position_info["side"] == "short":
+                pnl = df["value"].iloc[-1] - order["value"]
+
+        ls = [
+            sim.get_last("Date"),
+            sim.get_last("close"),
+            order["size"],
+            order["value"],
+            side,
+            motive,
+            pnl,
+            fees,
+            position_info["value"] + balance,
+            trade_count,
+            position_info["side"],
+        ]
+        trade_history.loc[len(trade_history)] = ls
+
+    def get_fees(self, amount, market=True):
+        if market:
+            amount *= 0.0004
+        else:
+            amount *= 0.0002
+        return amount
+
+    def update_value(self, sim, position_info):
+        position_info["value"] = position_info["size"] * sim.get_last("close")
+
+    def get_entry_value(self, trade_history, trade_count):
+        """returns the initila position value"""
+        df = trade_history.loc[trade_history["trade_count"] == trade_count]
+        return df.iloc[0]
+
 
 c = Constructor()
 d = DataFrame_manager()
 b = Bot_manager()
 
-df = d.apply_indics(d.resize_df(d.load_df_from_raw_file("ETHUSDT5m"), 5000))
+# df = d.apply_indics(d.resize_df(d.load_df_from_raw_file("ETHUSDT5m"), 5000))
 
-print(df["Date"].iloc[-1])
-print(type(df["Date"].iloc[-1]))
-print(df["Date"].iloc[-1] - df["Date"].iloc[-50])
-print(b.name_bot())
+# print(df["Date"].iloc[-1])
+# print(type(df["Date"].iloc[-1]))
+# print(df["Date"].iloc[-1] - df["Date"].iloc[-50])
+# print(b.name_bot())
+
+
+# print(b.init_history())
