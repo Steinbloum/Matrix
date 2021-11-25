@@ -21,14 +21,20 @@ class Bolbot(Bot):
         self.bias = self.params["bias"]
 
     def get_signal(self):
+        '''checks for signals, including SL. , must return Bool'''
+
+
         dicta = {}
-        # if self.position is not None:
-            # print('Noen NOen')
-            # print(self.position['value'])
-            # print(b.get_entry_value(self.trade_history, self.trade_count) * self.sl_trigger)
-            # input()
+
+        
+
         if self.position is not None:
-            if self.position["value"]<= float(b.get_entry_value(self.trade_history, self.trade_count)) * self.sl_trigger:
+            if self.position['size'] <0 :
+               if self.position["value"]*-1>= b.get_entry_value(self.trade_history, self.trade_count) * 1-self.sl_trigger+1:
+                dicta['sl'] = True
+                return{'sl': True, 'buy':False, 'sell':False}
+
+            if self.position["value"]<= b.get_entry_value(self.trade_history, self.trade_count) * self.sl_trigger:
                 dicta['sl'] = True
                 return{'sl': True, 'buy':False, 'sell':False}
             else:
@@ -86,6 +92,7 @@ print(sim.get_last("close"))
 for n in range(500):
     sim.update_df(n)
     bot.run_main()
-    print(bot.trade_history.tail(2))
+    # print(bot.trade_history.tail(2))
+print(bot.trade_history)
 print(b.get_results(bot.trade_history, bot.name, bot.style, bot.preset, bot.sim.raw_df))
 
