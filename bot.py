@@ -1,6 +1,10 @@
-from constructor2 import *
 from simulators import Simulator
 from inputoutput import io
+from constructor2 import Constructor, Bot_manager, DataFrame_manager
+
+c = Constructor()
+b = Bot_manager()
+d = DataFrame_manager()
 
 
 class Bot:
@@ -10,7 +14,7 @@ class Bot:
         self.preset = preset
         self.wallet = wallet
         self.name = b.name_bot()
-        self.params = b.load_attributes("bot_config.json", self.style)
+
         self.position = None
         self.buy_signal = True
         self.sell_signal = False

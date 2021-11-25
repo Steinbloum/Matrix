@@ -3,7 +3,7 @@ import glob
 import pandas as pd
 import time
 from inputoutput import Io
-from constructor2 import *
+from constructor2 import c, d
 from ta.momentum import rsi
 from ta.volume import money_flow_index
 from ta.trend import ema_indicator, macd, EMAIndicator, macd_signal
@@ -16,8 +16,6 @@ from ta.volatility import (
 )
 
 io = Io()
-c = Constructor()
-d = DataFrame_manager()
 
 
 class Simulator:

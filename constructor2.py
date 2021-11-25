@@ -65,6 +65,40 @@ class Constructor:
             print("NO DATA")
             return False
 
+    def add_to_json(self, json_file, new_config, bot_type):
+        ls = []
+        with open(json_file, "r") as file:
+            if os.stat(json_file).st_size == 0:
+                ls.append(new_config)
+                print("appending config")
+                with open(json_file, "w") as file:
+                    json.dump(json.dumps(ls), file)
+                    print("config stored")
+                    return new_config
+            else:
+                stock = json.load(file)
+                ls = json.loads(stock)
+                for item in ls:
+                    print(item)
+                    try:
+                        item[bot_type]["preset"] == new_config[bot_type]["preset"]
+                    except KeyError:
+                        ls.append(new_config)
+                        print("appending config")
+                        with open(json_file, "w") as file:
+                            json.dump(json.dumps(ls), file)
+                            print("config stored")
+                            break
+                    if item[bot_type]["preset"] == new_config[bot_type]["preset"]:
+                        print("preset already stored")
+                    else:
+                        ls.append(new_config)
+                        print("appending config")
+                        with open(json_file, "w") as file:
+                            json.dump(json.dumps(ls), file)
+                            print("config stored")
+                            break
+
 
 class DataFrame_manager:
     def __init__(self):
@@ -139,14 +173,15 @@ class Bot_manager:
         )
         return name
 
-    def load_attributes(self, config_file, style):
+    def load_attributes(self, config_file, style, preset):
         with open(config_file, "r") as jsonfile:
             configs = json.load(jsonfile)
             configs = json.loads(configs)
             for item in configs:
+                print(item)
                 for key, value in item.items():
                     if style == key:
-                        if value["preset"] == self.preset:
+                        if value["preset"] == preset:
                             return value
                         else:
                             print("WARNING NO CONFIG FOUND")
@@ -245,17 +280,17 @@ class Bot_manager:
         df = trade_history.loc[trade_history["trade_count"] == trade_count]
         return df.iloc[0]
 
+    def create_config(self, config_file, bot):
+        """set the paramters and return a dict to append to json"""
+        params = bot.get_params_dict()
+        print(params)
+        for key, value in params[bot.style].items():
+            if key != "preset":
+                params[bot.style][key] = input("enter the param for {}\n".format(key))
+
+        return params
+
 
 c = Constructor()
 d = DataFrame_manager()
 b = Bot_manager()
-
-# df = d.apply_indics(d.resize_df(d.load_df_from_raw_file("ETHUSDT5m"), 5000))
-
-# print(df["Date"].iloc[-1])
-# print(type(df["Date"].iloc[-1]))
-# print(df["Date"].iloc[-1] - df["Date"].iloc[-50])
-# print(b.name_bot())
-
-
-# print(b.init_history())
