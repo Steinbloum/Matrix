@@ -124,9 +124,13 @@ class Constructor:
         return len(df)
 
     def get_historical_klines_from_binance(
-        self, ticker, tf, start_date, end_date="today", to_csv=True, overwrite=True
+        self, ticker, tf, start_date, end_date="today", to_csv=True, overwrite=False
     ):
         client = Client(os.getenv("PUBLICAPI"), os.getenv("PRIVATEAPI"))
+        if not overwrite:
+            if os.path.isdir("{}/{}/{}".format(path_to_data, ticker, tf)):
+                print("data already stored")
+                return ""
         print("Getting klines for {}-{}".format(ticker, tf))
         klines = client.get_historical_klines(ticker, tf, start_date, end_date)
         print("processing {} klines.".format(len(klines)))
@@ -256,7 +260,7 @@ class Constructor:
         if trade_history is not None:
             df = trade_history.loc[trade_history["trade_count"] == trade_count]
             if df is not None:
-
+                # resets if size =0 : position closed
                 if sum(df["size"]) == 0:
                     return {
                         "initial value": 0,
@@ -278,6 +282,14 @@ class Constructor:
                     "position value": position_value,
                     "position size": position_size,
                 }
+        else:
+            return {
+                "initial value": 0,
+                "initial size": 0,
+                "price": price,
+                "position value": 0,
+                "position size": 0,
+            }
 
     def create_name(self, custom=False):
         if custom == False:
@@ -314,6 +326,7 @@ class Constructor:
 
     def get_pair_list(self, pair="USDT"):
         ls = []
+        client = Client(os.getenv("PUBLICAPI"), os.getenv("PRIVATEAPI"))
         exchange_info = client.get_exchange_info()
         for s in exchange_info["symbols"]:
             if (
@@ -344,7 +357,7 @@ class Constructor:
                     json.dump(json.dumps(ls), file)
                     print("config stored")
                     return new_config
-            else :
+            else:
                 stock = json.load(file)
                 ls = json.loads(stock)
                 for item in ls:
@@ -352,8 +365,12 @@ class Constructor:
                     try:
                         item[bot_type]["preset"] == new_config[bot_type]["preset"]
                     except KeyError:
-
-                        continue
+                        ls.append(new_config)
+                        print("appending config")
+                        with open(json_file, "w") as file:
+                            json.dump(json.dumps(ls), file)
+                            print("config stored")
+                            break
                     if item[bot_type]["preset"] == new_config[bot_type]["preset"]:
                         print("preset already stored")
                     else:
@@ -548,6 +565,3 @@ class Plotter:
         fig.update_yaxes(title_text="<b>Asset price</b>", secondary_y=False)
         fig.update_yaxes(title_text="<b>Bot balance</b>", secondary_y=True)
         fig.write_image("{}/perfo.png".format(path))
-
-
-

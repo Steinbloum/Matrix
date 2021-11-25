@@ -40,6 +40,11 @@ class Matrix:
             for bot in self.bots:
                 # print(bot)
                 bot = bot[0](sim, bot[1], self.balance * 0.1, bot[2])
+                print(bot.style)
+                print(bot.preset)
+                print(bot.reentry)
+                print(type(bot.reentry))
+                input()
                 bot.name_bot()
                 self.active_bots.append(bot)
             for bot in self.active_bots:

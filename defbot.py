@@ -215,7 +215,10 @@ class Bot:
                     value = updated["position value"]
                     size = updated["position size"]
                     self.market_trade(value, size, "tp", "sell", get_pnl=True)
-                elif updated["position value"] < updated["initial value"] * self.sl:
+                elif (
+                    updated["position value"]
+                    < updated["initial value"] * self.trigger_sl
+                ):
                     value = updated["position value"]
                     size = updated["position size"]
                     self.market_trade(value, size, "sl", "sell", get_pnl=True)
@@ -233,7 +236,7 @@ class Bot:
                     size = updated["position size"]
                     self.market_trade(-value, -size, "tp", "buy", get_pnl=True)
                 elif updated["position value"] < updated["initial value"] * (
-                    (1 - self.sl) + 1
+                    (1 - self.trigger_sl) + 1
                 ):
 
                     # print(self.trade_history)
@@ -313,12 +316,19 @@ class Bot:
             configs = json.loads(configs)
             for item in configs:
                 for key, value in item.items():
+                    print(key)
                     if self.style == key:
+                        print(value["preset"])
                         if value["preset"] == self.preset:
                             print("preset found")
-                            # self.params = value
-                            # print(self.params)
-        return value
+                            self.params = value
+                            print(self.params)
+                            return value
+                        else:
+                            print("no preset found")
+                    else:
+                        print("no bot type found")
+
     def set_matrix_name(self, name):
         self.matrix_name = name
 

@@ -1,16 +1,13 @@
 from matrix import Matrix
 from datetime import datetime
-from subbots import Bolbot, Fomobot
+from subbots import *
 from inputoutput import Io
 
 
 io = Io()
 start_time = datetime.now()
-matrix = Matrix(max_klines=3000, sim_amount=8)
-matrix.bots = [
-    [Fomobot, "Fomobot", "standard"],
-    [Fomobot, "Fomobot", "5xornothing"]
-]
+matrix = Matrix(max_klines=1500, sim_amount=2)
+matrix.bots = [[Bolibot, "Bolibot", "standard"], [Bolibot, "Bolibot", "waiter"]]
 
 matrix.run()
 end_time = datetime.now()
