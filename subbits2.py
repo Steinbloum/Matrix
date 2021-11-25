@@ -26,17 +26,26 @@ class Bolbot(Bot):
 
         dicta = {}
 
-        
+
 
         if self.position is not None:
             if self.position['size'] <0 :
-               if self.position["value"]*-1>= b.get_entry_value(self.trade_history, self.trade_count) * 1-self.sl_trigger+1:
-                dicta['sl'] = True
-                return{'sl': True, 'buy':False, 'sell':False}
+                # print(self.position)
+                # print(self.position["value"]*-1)
+                # print(1-self.sl_trigger+1)
+                # print(b.get_entry_value(self.trade_history, self.trade_count) * (1-self.sl_trigger+1))
+                # input()
+                if self.position["value"]*-1 >= b.get_entry_value(self.trade_history, self.trade_count) * (1-self.sl_trigger+1):
+                    # print
+                    dicta['sl'] = True
+                    return{'sl': True, 'buy':False, 'sell':False}
+                else:
+                    dicta['sl'] = False
 
-            if self.position["value"]<= b.get_entry_value(self.trade_history, self.trade_count) * self.sl_trigger:
-                dicta['sl'] = True
-                return{'sl': True, 'buy':False, 'sell':False}
+            elif self.position['value']>0:
+                if self.position["value"]<= b.get_entry_value(self.trade_history, self.trade_count) * self.sl_trigger:
+                    dicta['sl'] = True
+                    return{'sl': True, 'buy':False, 'sell':False}
             else:
                 dicta['sl'] = False
         dicta['sl'] = False
@@ -49,16 +58,12 @@ class Bolbot(Bot):
         else:
             dicta['sell'] = False
             dicta['buy'] = False
-        # print(dicta)
         return dicta
 
     def run_main(self):
 
         b.update_value(self.sim, self.position)
         signal = self.get_signal()
-        print(signal)
-        print(self.position)
-
         self.buy_signal = signal["buy"]
         self.sell_signal = signal["sell"]
         self.sl_signal = signal["sl"]
@@ -79,17 +84,13 @@ class Bolbot(Bot):
 
 sim = Simulator("ETHUSDT15m", 2000)
 
-# c.add_to_json(
-#     "bot_config.json",
-#     b.create_config("bot_config.json", Bolbot(sim, "Bolbot", "standard", 0)),
-#     "Bolbot",
-# )
+
 
 bot = Bolbot(sim, "Bolbot", "standard")
 print(bot.sl_trigger)
 print(sim.df)
 print(sim.get_last("close"))
-for n in range(500):
+for n in range(2000):
     sim.update_df(n)
     bot.run_main()
     # print(bot.trade_history.tail(2))
