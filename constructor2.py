@@ -284,15 +284,50 @@ class Bot_manager:
         df = trade_history.loc[trade_history["trade_count"] == trade_count]
         return df.iloc[0]
 
-    def create_config(self, config_file, bot):
-        """set the paramters and return a dict to append to json"""
+    def create_config(self, config_file, bot, save = True):
+        """set the paramters, return a dict to append to json"""
+        '''COMMENT THE INIT SECTION OF THE SUBBOT BEFORE RUNNING'''
         params = bot.get_params_dict()
         print(params)
         for key, value in params[bot.style].items():
             if key != "preset":
                 params[bot.style][key] = input("enter the param for {}\n".format(key))
-
+        if save:
+            c.add_to_json(config_file, params, bot.style)
         return params
+
+    def get_results(self, trade_history, name, style, preset):
+        if len(trade_history.loc[trade_history['motive'] != ' INIT']) == 0:
+            print('no trades for {}'.format(name))
+            return False
+        else :
+            trades = trade_history['trade_count'].iloc[-1]
+            wt = len(trade_history.loc[trade_history['pnl'] > 0 ])
+            lt = trades-wt
+            wr = wt/trades*100
+            pnl = 
+            roi = trade_history['wallet'].iloc[-1]/trade_history['wallet'].iloc[0] * 100
+            df = pd.DataFrame({
+                'name' : name,
+                'type' : style,
+                'preset' : preset,
+                'trades' : trades,
+                'winning_trades' : wt,
+                'win_rate' : wr, 
+                'pnl' : pnl,
+                'roi':roi,
+                'fees' : fees,
+                'adj_pnl' : pnl-fees,
+                'adj_roi' : 
+
+
+
+
+
+
+            })
+
+
 
 
 c = Constructor()

@@ -32,3 +32,8 @@ if position:
     print(True)
 else:
     print(False)
+
+bim = Subtestclass
+print(bim)
+print(str(bim))
+
