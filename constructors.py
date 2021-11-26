@@ -477,7 +477,6 @@ class Plotter:
             )
         )
 
-        trade_history = None
         fig.write_image("{}/{}.png".format(path, name))
         return fig
 
@@ -564,4 +563,4 @@ class Plotter:
         )
         fig.update_yaxes(title_text="<b>Asset price</b>", secondary_y=False)
         fig.update_yaxes(title_text="<b>Bot balance</b>", secondary_y=True)
-        fig.write_image("{}/perfo.png".format(path))
+        fig.write_image("/reports/{}/perfo.png".format(bot_name, path))

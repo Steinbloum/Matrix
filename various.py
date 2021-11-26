@@ -1,6 +1,7 @@
 import json
 from subbots import Fomobot, Bolbot
 from constructors import Constructor
+import pandas as pd
 
 c = Constructor()
 
@@ -19,21 +20,10 @@ class Subtestclass(TestClass):
         self.thebao = "haha"
 
 
-tst = Subtestclass()
-tst.print()
-
-str = "True"
-str2 = "False"
-str3 = "qsfqdsf"
-
-print("{}{}".format(eval(str), eval(str2)))
-position = None
-if position:
-    print(True)
-else:
-    print(False)
-
-bim = Subtestclass
-print(bim)
-print(str(bim))
-
+df = pd.read_csv(
+    "reports/Janice_the_naughty/Janice_the_naughty_trade_history.csv", index_col=0
+)
+df = df.sort_values("pnl", ascending=False).dropna()
+ls = df["trade_count"].head(10).to_list()
+print(df)
+print(ls)
