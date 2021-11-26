@@ -38,8 +38,19 @@ class Matrix:
                 bot = bot[0](sim, bot[1], bot[2])
                 self.active_bots.append(bot)
                 print(bot.name)
+        for n in range(self.min_loop):
+            for sim in self.sims:
+                sim.update_df(n)
+                for bot in self.active_bots:
+                    bot.run_main()
+
+        for bot in self.active_bots:
+            b.close_all(bot, bot.position, bot.trade_hirtory)
+            p.make_chart_trades_report(
+                bot.ticker + bot.tf, bot.name, bot.trade_history, bot
+            )
 
 
-matrix = Matrix(min_loop=5000)
+matrix = Matrix(min_loop=3000)
 matrix.bots = [[Bolbot, "Bolbot", "standard"]]
 matrix.run()

@@ -394,7 +394,7 @@ class Bot_manager:
                 # print(sell)
                 # print(bot.position)
                 bot.exec_order(sell)
-                print(bot.position)
+                # print(bot.position)
                 self.store_transaction(
                     bot.sim,
                     bot.trade_history,
