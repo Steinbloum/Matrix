@@ -1,3 +1,4 @@
+from numpy import add
 from ta.volume import money_flow_index
 from ta.trend import ema_indicator, macd, EMAIndicator, macd_signal
 from ta.volatility import (
@@ -203,6 +204,12 @@ class DataFrame_manager:
         df = df.iloc[row]
         return df
 
+    def add_df_to_df(self, df, df_to_add):
+
+        df.append(df_to_add)
+
+        return df
+
 
 class Bot_manager:
     def __init__(self):
@@ -340,7 +347,7 @@ class Bot_manager:
             c.add_to_json(config_file, params, bot.style)
         return params
 
-    def get_results(self, trade_history, name, style, preset, raw_df):
+    def get_results(self, matrix,bot, trade_history, name, style, preset, raw_df):
         if len(trade_history.loc[trade_history["motive"] != " INIT"]) == 0:
             print("no trades for {}".format(name))
             return False
@@ -364,7 +371,7 @@ class Bot_manager:
                     "preset": preset,
                     "time-span": tspan,
                     "trades": trades,
-                    "winning_trades": wt,
+                    "won": wt,
                     "win_rate": wr,
                     "pnl": pnl,
                     "roi": roi,
@@ -374,13 +381,15 @@ class Bot_manager:
                     / trade_history["wallet"].iloc[0]
                     * 100
                     - 100,
+                    "ticker": bot.sim.ticker,
+                    "tf":bot.sim.tf
                 },
                 index=[0],
             )
             # print(df)
             c.create_csv_from_df(
                 trade_history,
-                "{}/{}/{}_trade_history.csv".format("reports", name, name),
+                "{}/{}/{}/{}_trade_history.csv".format("reports",matrix.name, name, name),
             )
 
             return df
@@ -429,7 +438,7 @@ class Bot_manager:
         trade_history = trade_history.round(
             {"size": 2, "value": 2, "pnl": 2, "fees": 2, "wallet": 2}
         )
-        print(trade_history)
+        # print(trade_history)
 
 
 class Plotter:
@@ -521,7 +530,7 @@ class Plotter:
         return fig
 
     def make_chart_trades_report(
-        self, call_name, name, trade_history, bot, top=10, save=True
+        self, matrix_name,call_name, name, trade_history, bot, top=10, save=True
     ):
 
         """makes a chart for top and worst n trades in the trade history"""
@@ -535,18 +544,19 @@ class Plotter:
             ch = self.get_raw_file_for_chart(call_name, trade_history, count)
             ch = self.make_single_trade_graph(ch["raw"], ch["trade"])
             if save:
-                ch.write_image("reports/{}/top{}.png".format(name, n))
+                ch.write_image("reports/{}/{}/top{}.png".format(matrix_name, name, n))
                 n += 1
         n = 1
         for count in lswor:
             ch = self.get_raw_file_for_chart(call_name, trade_history, count)
             ch = self.make_single_trade_graph(ch["raw"], ch["trade"])
             if save:
-                ch.write_image("reports/{}/worst{}.png".format(name, n))
+                ch.write_image("reports/{}/{}/worst{}.png".format(matrix_name, name, n))
                 n += 1
-        self.make_balance_chart(
+        fig = self.make_balance_chart(
             bot.sim.raw_df, bot.trade_history, bot.sim.ticker, bot.name
         )
+        fig.write_image("reports/{}/{}/perfo.png".format(matrix_name ,name))
 
     def make_balance_chart(self, raw, trade_history, ticker, name):
 
@@ -574,11 +584,53 @@ class Plotter:
         fig.update_layout(
             legend=dict(yanchor="bottom", y=-0.25, xanchor="center", x=0.5)
         )
-        fig.write_image("reports/{}/perfo.png".format(name))
+
         return fig
+
+
+class Matrix_manager:
+    '''For all that is relative to the Matrix'''
+    def __init__(self):
+        pass
+
+    def name_matrix(self):
+        return c.random_name()
+
+
+    def get_session_results(self, matrix):
+        df = None
+        for bot in matrix.active_bots:
+            if df is None:
+                df = b.get_results(matrix, bot, bot.trade_history
+                , bot.name, bot.style, bot.preset, bot.sim.raw_df)
+            else:
+                df = df.append(b.get_results(matrix, bot, bot.trade_history
+                , bot.name, bot.style, bot.preset,bot.sim.raw_df), ignore_index=True)
+
+                df.to_csv("reports/{}/{}_report.csv".format(matrix.name, matrix.name))
+                df = df.sort_values(by="adj_roi", ascending=False)
+        df = df.round(
+            {
+                "win_rate": 2,
+                "pnl": 2,
+                "roi": 2,
+                "fees": 2,
+                "adjusted_pnl": 2,
+                "ajusted_roi": 2,
+            }
+        )
+        print(df)
+
+        return df
+
+
+
+
+
 
 
 c = Constructor()
 d = DataFrame_manager()
 b = Bot_manager()
 p = Plotter()
+m = Matrix_manager()

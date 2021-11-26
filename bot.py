@@ -44,7 +44,7 @@ class Bot:
                     self.position,
                 )
                 self.exec_order(buy)
-                print(self.wallet)
+                # print(self.wallet)
                 b.store_transaction(
                     self.sim,
                     self.trade_history,
@@ -87,7 +87,7 @@ class Bot:
                     # print(sell)
                     # print(self.position)
                     self.exec_order(sell)
-                    print(self.position)
+                    # print(self.position)
                     b.store_transaction(
                         self.sim,
                         self.trade_history,
@@ -109,7 +109,7 @@ class Bot:
                     # print(sell)
                     # print(self.position)
                     self.exec_order(sell)
-                    print(self.position)
+                    # print(self.position)
                     b.store_transaction(
                         self.sim,
                         self.trade_history,

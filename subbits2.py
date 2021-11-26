@@ -12,14 +12,14 @@ class Bolbot(Bot):
     wait reentry : trade market when the candles reenter the range, bool
     bias : 'bull' neutral' or 'bear'"""
 
-    def __init__(self, sim, style, preset, wallet=1000):
+    def __init__(self,matrix, sim, style, preset, wallet=1000):
         super().__init__(sim, style, preset, wallet=wallet)
         self.params = b.load_attributes("bot_config.json", self.style, preset)
         self.trade_amount = float(self.params["trade amount"])
         self.sl_trigger = float(self.params["trigger_sl"])
         self.wait = eval(self.params["wait for reentry"])
         self.bias = self.params["bias"]
-        c.create_dir("reports/{}".format(self.name))
+        c.create_dir("reports/{}/{}".format(matrix.name,self.name))
 
     def get_signal(self):
         """checks for signals, including SL. , must return Bool"""
