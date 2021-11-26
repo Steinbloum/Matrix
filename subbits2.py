@@ -86,29 +86,29 @@ class Bolbot(Bot):
         return params_dict
 
 
-rows = 100000
-sim = Simulator("BTCUSDT1m", rows)
+# rows = 100000
+# sim = Simulator("BTCUSDT1m", rows)
 
 
-bot = Bolbot(sim, "Bolbot", "standard")
-print(bot.sl_trigger)
-print(sim.df)
-print(sim.get_last("close"))
-for n in range(rows):
-    sim.update_df(n)
-    bot.run_main()
-    # print(bot.trade_history.tail(2))
-b.close_all(bot, bot.position, bot.trade_history)
-print(bot.trade_history)
-print(b.get_results(bot.trade_history, bot.name, bot.style, bot.preset, bot.sim.raw_df))
-# raw_df = d.apply_indics(d.resize_df(d.load_df_from_raw_file("ETHUSDT15m"), 2000))
-# print(raw_df)
-# trade_hist = pd.read_csv(
-#     "reports/Barbara_the_naughty/Barbara_the_naughty_trade_history.csv", index_col=0
+# bot = Bolbot(sim, "Bolbot", "standard")
+# print(bot.sl_trigger)
+# print(sim.df)
+# print(sim.get_last("close"))
+# for n in range(rows):
+#     sim.update_df(n)
+#     bot.run_main()
+#     # print(bot.trade_history.tail(2))
+# b.close_all(bot, bot.position, bot.trade_history)
+# print(bot.trade_history)
+# print(b.get_results(bot.trade_history, bot.name, bot.style, bot.preset, bot.sim.raw_df))
+# # raw_df = d.apply_indics(d.resize_df(d.load_df_from_raw_file("ETHUSDT15m"), 2000))
+# # print(raw_df)
+# # trade_hist = pd.read_csv(
+# #     "reports/Barbara_the_naughty/Barbara_the_naughty_trade_history.csv", index_col=0
+# # )
+# print("{}{}".format(bot.sim.ticker, bot.sim.tf))
+# p.make_chart_trades_report(
+#     "{}{}".format(bot.sim.ticker, bot.sim.tf), bot.name, bot.trade_history, bot
 # )
-print("{}{}".format(bot.sim.ticker, bot.sim.tf))
-p.make_chart_trades_report(
-    "{}{}".format(bot.sim.ticker, bot.sim.tf), bot.name, bot.trade_history, bot
-)
 
-print(bot.name)
+# print(bot.name)

@@ -15,9 +15,11 @@ import json
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
+import random
+from inputoutput import Io
 
 r = RandomWord()
-
+io = Io()
 path_to_data = os.getenv("PATHTODATA")
 
 
@@ -64,7 +66,7 @@ class Constructor:
         if os.path.isfile(path):
             return path
         else:
-            print("NO DATA")
+            # print("NO DATA")
             return False
 
     def add_to_json(self, json_file, new_config, bot_type):
@@ -112,6 +114,35 @@ class Constructor:
 
         df.to_csv("{}".format(path))
 
+    def random_name(self):
+
+        name = "{}_{}".format(
+            r.word(include_parts_of_speech=["adjectives"]),
+            r.word(include_parts_of_speech=["nouns"]),
+        )
+        return name
+
+    def get_random_sim_list(self, amount, max_klines, conditions=True):
+        ls = []
+        while len(ls) < amount:
+            for n in range(amount):
+                lssimis = random.choice(os.listdir(path_to_data))
+                tfs = random.choice(["1m", "5m", "15m", "30m", "1h", "4h", "1d"])
+                pair = lssimis + tfs
+                if not pair in ls:
+                    # print(pair)
+                    if conditions:
+                        if self.get_path_to_raw_file(pair):
+                            # print("YES")
+                            if len(d.load_df_from_raw_file(pair)) >= max_klines:
+                                # print("APPEDING")
+                                ls.append(pair)
+                        else:
+                            io.print_warning("NO DATA FOR {}".format(pair))
+
+        # print(ls)
+        return ls
+
 
 class DataFrame_manager:
     def __init__(self):
@@ -121,17 +152,15 @@ class DataFrame_manager:
         """checks if file has the right amount of rows"""
         if len(self.load_df_from_raw_file(call_name)) >= size:
             return True
-        else:
-            return False
 
     def load_df_from_raw_file(self, call_name):
         """returns de dataframe for the selected path"""
         path_to_raw_file = c.get_path_to_raw_file(call_name)
         if path_to_raw_file:
             df = pd.read_csv(path_to_raw_file, index_col=0)
+            # print(df)
             return df
         else:
-
             return False
 
     def resize_df(self, df, size, from_end=True):
@@ -546,6 +575,7 @@ class Plotter:
             legend=dict(yanchor="bottom", y=-0.25, xanchor="center", x=0.5)
         )
         fig.write_image("reports/{}/perfo.png".format(name))
+        return fig
 
 
 c = Constructor()
