@@ -74,6 +74,8 @@ class Bolbot(Bot):
         self.run()
 
     def get_params_dict(self):
+        '''Sets the params dict config
+        charting options = ls with the indics to set on the single trade chart'''
         params_dict = {
             self.style: {
                 "preset": self.preset,
@@ -81,6 +83,7 @@ class Bolbot(Bot):
                 "trigger_sl": "",
                 "wait for reentry": "",
                 "bias": "",
+                'charting options' : ['bolup', 'boldown', 'bolmav']
             }
         }
         return params_dict

@@ -442,6 +442,8 @@ class Bot_manager:
 
 
 class Plotter:
+
+    '''a class for charting'''
     def __init__(self):
         pass
 
