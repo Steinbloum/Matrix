@@ -178,6 +178,7 @@ class DataFrame_manager:
             return df
         else:
             df = df.iloc[:size]
+            df["Date"] = pd.to_datetime(df["Date"])
             return df
 
     def apply_indics(self, df):
@@ -338,11 +339,13 @@ class Bot_manager:
     def create_config(self, config_file, bot, save=True):
         """set the paramters, return a dict to append to json"""
         """COMMENT THE INIT SECTION OF THE SUBBOT BEFORE RUNNING"""
+
         params = bot.get_params_dict()
         print(params)
         for key, value in params[bot.style].items():
             if key != "preset":
-                params[bot.style][key] = input("enter the param for {}\n".format(key))
+                if not value:
+                    params[bot.style][key] = input("enter the param for {}\n".format(key))
         if save:
             c.add_to_json(config_file, params, bot.style)
         return params
@@ -542,21 +545,21 @@ class Plotter:
         n = 1
         for count in lstop:
             ch = self.get_raw_file_for_chart(call_name, trade_history, count)
-            ch = self.make_single_trade_graph(ch["raw"], ch["trade"])
+            ch = self.make_single_trade_graph(ch["raw"], ch["trade"], *bot.params['charting options'])
             if save:
                 ch.write_image("reports/{}/{}/top{}.png".format(matrix_name, name, n))
                 n += 1
         n = 1
         for count in lswor:
             ch = self.get_raw_file_for_chart(call_name, trade_history, count)
-            ch = self.make_single_trade_graph(ch["raw"], ch["trade"])
+            ch = self.make_single_trade_graph(ch["raw"], ch["trade"], *bot.params['charting options'])
             if save:
                 ch.write_image("reports/{}/{}/worst{}.png".format(matrix_name, name, n))
                 n += 1
         fig = self.make_balance_chart(
             bot.sim.raw_df, bot.trade_history, bot.sim.ticker, bot.name
         )
-        fig.write_image("reports/{}/{}/perfo.png".format(matrix_name ,name))
+        fig.write_image("reports/{}/{}_perf.png".format(matrix_name, name))
 
     def make_balance_chart(self, raw, trade_history, ticker, name):
 
@@ -634,3 +637,4 @@ d = DataFrame_manager()
 b = Bot_manager()
 p = Plotter()
 m = Matrix_manager()
+

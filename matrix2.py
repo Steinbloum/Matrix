@@ -1,5 +1,5 @@
 from simulators import Simulator
-from subbits2 import Bolbot
+from subbits2 import Bolbot, EmaBot
 from constructor2 import c, p, d, b,m
 from inputoutput import Io
 
@@ -39,7 +39,7 @@ class Matrix:
                 bot = bot[0](self, sim, bot[1], bot[2])
                 self.active_bots.append(bot)
                 # print(bot.name)
-        for n in range(self.min_loop):
+        for n in range(self.min_loop):           
             if n%100 ==0 :
                 print('analysing candle {}'.format(n))
             for sim in self.sims:
@@ -49,6 +49,7 @@ class Matrix:
 
         for bot in self.active_bots:
             b.close_all(bot, bot.position, bot.trade_history)
+            print('Making reports, can take some time...')
             p.make_chart_trades_report(
                 matrix.name, bot.sim.ticker + bot.sim.tf, bot.name, bot.trade_history, bot
             )
@@ -56,6 +57,6 @@ class Matrix:
         print(matrix.name)
 
 
-matrix = Matrix(min_loop=1000, sim_amount=10)
-matrix.bots = [[Bolbot, "Bolbot", "standard"]]
+matrix = Matrix(min_loop=4000, sim_amount=6)
+matrix.bots = [[EmaBot, "Emabot", "standard"], [Bolbot, 'Bolbot', 'standard']]
 matrix.run()

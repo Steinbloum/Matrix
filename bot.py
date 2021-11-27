@@ -1,4 +1,4 @@
-from simulators import Simulator
+
 from inputoutput import io
 from constructor2 import Constructor, Bot_manager, DataFrame_manager
 
@@ -23,6 +23,7 @@ class Bot:
         self.trade_history = b.init_history(self.sim, self.wallet)
         self.trade_count = 0
         self.trade_amount = 0.5
+        self.orders = None
 
     def welcome(self):
         io.print_bull(
@@ -35,135 +36,143 @@ class Bot:
 
     def run(self):
 
-        if not self.position:
-            if self.buy_signal:
-                self.open("long")
-                buy = b.buy_market(
-                    self.trade_amount * self.wallet,
-                    (self.trade_amount * self.wallet) / self.sim.get_last("close"),
-                    self.position,
-                )
-                self.exec_order(buy)
-                # print(self.wallet)
-                b.store_transaction(
-                    self.sim,
-                    self.trade_history,
-                    self.position,
-                    buy,
-                    "open",
-                    "buy",
-                    b.get_fees(buy["value"]),
-                    self.wallet,
-                    self.trade_count,
-                )
-            elif self.sell_signal:
-                self.open("short")
-                sell = b.sell_market(
-                    self.trade_amount * self.wallet,
-                    (self.trade_amount * self.wallet) / self.sim.get_last("close"),
-                    self.position,
-                )
-                self.exec_order(sell)
-                b.store_transaction(
-                    self.sim,
-                    self.trade_history,
-                    self.position,
-                    sell,
-                    "open",
-                    "sell",
-                    sell["fees"],
-                    self.wallet,
-                    self.trade_count,
-                )
-
-        else:
-
-            if self.position["side"] == "long":
-
-                if self.sl_signal:
-                    sell = b.sell_market(
-                        self.position["value"], self.position["size"], self.position
+        if self.params['order_type'] == 'market':
+            if not self.position:
+                if self.buy_signal:
+                    self.open("long")
+                    buy = b.buy_market(
+                        self.trade_amount * self.wallet,
+                        (self.trade_amount * self.wallet) / self.sim.get_last("close"),
+                        self.position,
                     )
-                    # print(sell)
-                    # print(self.position)
-                    self.exec_order(sell)
-                    # print(self.position)
+                    self.exec_order(buy)
+                    # print(self.wallet)
                     b.store_transaction(
                         self.sim,
                         self.trade_history,
                         self.position,
-                        sell,
-                        "sl",
-                        "sell",
-                        sell["fees"],
+                        buy,
+                        "open",
+                        "buy",
+                        b.get_fees(buy["value"]),
                         self.wallet,
                         self.trade_count,
-                        pnl=True,
                     )
-                    self.close()
-
                 elif self.sell_signal:
+                    self.open("short")
                     sell = b.sell_market(
-                        self.position["value"], self.position["size"], self.position
+                        self.trade_amount * self.wallet,
+                        (self.trade_amount * self.wallet) / self.sim.get_last("close"),
+                        self.position,
                     )
-                    # print(sell)
-                    # print(self.position)
                     self.exec_order(sell)
-                    # print(self.position)
                     b.store_transaction(
                         self.sim,
                         self.trade_history,
                         self.position,
                         sell,
-                        "tp",
+                        "open",
                         "sell",
                         sell["fees"],
                         self.wallet,
                         self.trade_count,
-                        pnl=True,
                     )
-                    self.close()
-                
 
-            elif self.position["side"] == "short":
-                if self.sl_signal:
-                    buy = b.buy_market(
-                        self.position["value"], self.position["size"], self.position
-                    )
-                    self.exec_order(buy)
-                    b.store_transaction(
-                        self.sim,
-                        self.trade_history,
-                        self.position,
-                        buy,
-                        "sl",
-                        "buy",
-                        buy["fees"],
-                        self.wallet,
-                        self.trade_count,
-                        pnl=True,
-                    )
-                    self.close()
+            else:
 
-                elif self.buy_signal:
-                    buy = b.buy_market(
-                        self.position["value"], self.position["size"], self.position
-                    )
-                    self.exec_order(buy)
-                    b.store_transaction(
-                        self.sim,
-                        self.trade_history,
-                        self.position,
-                        buy,
-                        "tp",
-                        "buy",
-                        buy["fees"],
-                        self.wallet,
-                        self.trade_count,
-                        pnl=True,
-                    )
-                    self.close()
+                if self.position["side"] == "long":
+
+                    if self.sl_signal:
+                        sell = b.sell_market(
+                            self.position["value"], self.position["size"], self.position
+                        )
+                        # print(sell)
+                        # print(self.position)
+                        self.exec_order(sell)
+                        # print(self.position)
+                        b.store_transaction(
+                            self.sim,
+                            self.trade_history,
+                            self.position,
+                            sell,
+                            "sl",
+                            "sell",
+                            sell["fees"],
+                            self.wallet,
+                            self.trade_count,
+                            pnl=True,
+                        )
+                        self.close()
+
+                    elif self.sell_signal:
+                        sell = b.sell_market(
+                            self.position["value"], self.position["size"], self.position
+                        )
+                        # print(sell)
+                        # print(self.position)
+                        self.exec_order(sell)
+                        # print(self.position)
+                        b.store_transaction(
+                            self.sim,
+                            self.trade_history,
+                            self.position,
+                            sell,
+                            "tp",
+                            "sell",
+                            sell["fees"],
+                            self.wallet,
+                            self.trade_count,
+                            pnl=True,
+                        )
+                        self.close()
+                    
+
+                elif self.position["side"] == "short":
+                    if self.sl_signal:
+                        buy = b.buy_market(
+                            self.position["value"], self.position["size"], self.position
+                        )
+                        self.exec_order(buy)
+                        b.store_transaction(
+                            self.sim,
+                            self.trade_history,
+                            self.position,
+                            buy,
+                            "sl",
+                            "buy",
+                            buy["fees"],
+                            self.wallet,
+                            self.trade_count,
+                            pnl=True,
+                        )
+                        self.close()
+
+                    elif self.buy_signal:
+                        buy = b.buy_market(
+                            self.position["value"], self.position["size"], self.position
+                        )
+                        self.exec_order(buy)
+                        b.store_transaction(
+                            self.sim,
+                            self.trade_history,
+                            self.position,
+                            buy,
+                            "tp",
+                            "buy",
+                            buy["fees"],
+                            self.wallet,
+                            self.trade_count,
+                            pnl=True,
+                        )
+                        self.close()
                 
+        elif self.params['order_type'] == 'limit':
+            for order in self.orders:
+                # blablabla
+                pass
+
+
+
 
     def open(self, side):
         """initialises a dict for self.position,

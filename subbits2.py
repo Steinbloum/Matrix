@@ -1,6 +1,7 @@
 import pandas as pd
 from bot import Bot
 from simulators import Simulator
+
 from constructor2 import c, d, b, p, path_to_data
 
 
@@ -81,34 +82,78 @@ class Bolbot(Bot):
                 "trigger_sl": "",
                 "wait for reentry": "",
                 "bias": "",
+                'charting options' : ['bolup', 'boldown', 'bolmav'],
+            }
+        }
+        return params_dict
+
+class EmaBot(Bot):
+    def __init__(self, matrix, sim, style, preset, wallet=1000):
+        super().__init__(sim, style, preset, wallet=wallet)
+        self.params = b.load_attributes("bot_config.json", self.style, preset)
+        c.create_dir("reports/{}/{}".format(matrix.name,self.name))
+        self.trade_amount = float(self.params["trade amount"])
+        self.sl_trigger = float(self.params["trigger_sl"])
+        self.emas = self.params['emas']
+        self.counter = 0
+        self.trend = None
+        
+
+    def get_signal(self):
+
+        dicta={}
+        emad={}
+        self.sim.df = self.sim.df.fillna(False)
+        ls= self.sim.df[self.emas]
+        lsval = []
+        for ema in self.emas:
+            lsval.append(self.sim.df[ema])
+        print(lsval)
+        if False not in lsval:
+            if lsval==sorted(lsval):
+                print('BEAR')
+                print(lsval)
+                self.trend = 'bear'
+                print(reversed(lsval))
+                # input()
+            elif lsval==sorted(lsval, reverse=True):
+                print('BULL')
+                self.trend = 'bull'
+                input()
+            else :
+                self.trend = 'boring'
+            
+
+
+        return{'buy': False, 'sell':False, 'sl':False}
+
+    def run_main(self):
+
+        b.update_value(self.sim, self.position)
+        signal = self.get_signal()
+        self.buy_signal = signal["buy"]
+        self.sell_signal = signal["sell"]
+        self.sl_signal = signal["sl"]
+        self.run()
+
+    def get_params_dict(self):
+        params_dict = {
+            self.style: {
+                "preset": 'standard',
+                "trade amount": 0.5,
+                "trigger_sl": 0.9,
+                'emas': ['EMA25', 'EMA50', 'EMA100'],
+                "bias": "neutral",
+                'charting options' : ['EMA25', 'EMA50', 'EMA100'],
             }
         }
         return params_dict
 
 
-# rows = 100000
-# sim = Simulator("BTCUSDT1m", rows)
 
 
-# bot = Bolbot(sim, "Bolbot", "standard")
-# print(bot.sl_trigger)
-# print(sim.df)
-# print(sim.get_last("close"))
-# for n in range(rows):
-#     sim.update_df(n)
-#     bot.run_main()
-#     # print(bot.trade_history.tail(2))
-# b.close_all(bot, bot.position, bot.trade_history)
-# print(bot.trade_history)
-# print(b.get_results(bot.trade_history, bot.name, bot.style, bot.preset, bot.sim.raw_df))
-# # raw_df = d.apply_indics(d.resize_df(d.load_df_from_raw_file("ETHUSDT15m"), 2000))
-# # print(raw_df)
-# # trade_hist = pd.read_csv(
-# #     "reports/Barbara_the_naughty/Barbara_the_naughty_trade_history.csv", index_col=0
-# # )
-# print("{}{}".format(bot.sim.ticker, bot.sim.tf))
-# p.make_chart_trades_report(
-#     "{}{}".format(bot.sim.ticker, bot.sim.tf), bot.name, bot.trade_history, bot
-# )
 
-# print(bot.name)
+
+# sim = Simulator('ETHUSDT15m', 1000)
+# b.create_config('bot_config.json', EmaBot(matrix=None, sim=sim, style='Emabot', preset='standard'))
+
