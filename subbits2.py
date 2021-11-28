@@ -127,7 +127,7 @@ class EmaBot(Bot):
             else:
                 self.trend = False
                 self.counter = 0
-        print("trend {} for {} candles".format(self.trend, self.counter))
+        # print("trend {} for {} candles".format(self.trend, self.counter))
 
         # input()
 
@@ -183,15 +183,21 @@ class EmaBot(Bot):
                 "side": side,
                 "motive": motive,
             }
+            orders = {"open": open, "stop": stop, "tp": tp}
+            self.orders = orders
+            return orders
 
-            return {"open": open, "stop": stop, "tp": tp}
+    def execute_limit_order(self, order):
+        pass
 
     def run_main(self):
 
         b.update_value(self.sim, self.position)
         signal = self.get_signal()
-        print(self.set_orders(signal))
-        input()
+        orders = self.set_orders(signal)
+        print(orders)
+
+        # input()
         self.run()
 
     def get_params_dict(self):

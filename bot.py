@@ -1,4 +1,3 @@
-
 from inputoutput import io
 from constructor2 import Constructor, Bot_manager, DataFrame_manager
 
@@ -23,7 +22,7 @@ class Bot:
         self.trade_history = b.init_history(self.sim, self.wallet)
         self.trade_count = 0
         self.trade_amount = 0.5
-        self.orders = None
+        self.orders = False
 
     def welcome(self):
         io.print_bull(
@@ -35,8 +34,11 @@ class Bot:
         )
 
     def run(self):
-
-        if self.params['order_type'] == 'market':
+        print("{} {}".format(self.name, self.trade_history))
+        if self.params["order_type"] == "market":
+            if self.style == "Emabot":
+                print("oops")
+                input()
             if not self.position:
                 if self.buy_signal:
                     self.open("long")
@@ -125,7 +127,6 @@ class Bot:
                             pnl=True,
                         )
                         self.close()
-                    
 
                 elif self.position["side"] == "short":
                     if self.sl_signal:
@@ -165,14 +166,40 @@ class Bot:
                             pnl=True,
                         )
                         self.close()
-                
-        elif self.params['order_type'] == 'limit':
-            for order in self.orders:
-                # blablabla
-                pass
 
-
-
+        elif self.params["order_type"] == "limit":
+            print(self.orders)
+            if self.orders:
+                for order, motive in self.orders.items():
+                    print("{} order price :{}".format(order, motive["price"]))
+                    print(
+                        "market price:{}, H{}, L{}".format(
+                            self.sim.df["close"],
+                            self.sim.df["high"],
+                            self.sim.df["low"],
+                        )
+                    )
+                    input()
+                    if (
+                        self.sim.df["low"]
+                        < self.orders["open"]["price"]
+                        < self.sim.df["high"]
+                    ):
+                        "execute limit order"
+                        self.open(self.orders["open"]["side"])
+                        buy = b.buy_limit(self, self.orders["open"])
+                        self.exec_order(buy)
+                        b.store_transaction(
+                            self.sim,
+                            self.trade_history,
+                            self.position,
+                            buy,
+                            "open",
+                            "buy",
+                            b.get_fees(buy["value"]),
+                            self.wallet,
+                            self.trade_count,
+                        )
 
     def open(self, side):
         """initialises a dict for self.position,
