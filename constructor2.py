@@ -345,12 +345,14 @@ class Bot_manager:
         for key, value in params[bot.style].items():
             if key != "preset":
                 if not value:
-                    params[bot.style][key] = input("enter the param for {}\n".format(key))
+                    params[bot.style][key] = input(
+                        "enter the param for {}\n".format(key)
+                    )
         if save:
             c.add_to_json(config_file, params, bot.style)
         return params
 
-    def get_results(self, matrix,bot, trade_history, name, style, preset, raw_df):
+    def get_results(self, matrix, bot, trade_history, name, style, preset, raw_df):
         if len(trade_history.loc[trade_history["motive"] != " INIT"]) == 0:
             print("no trades for {}".format(name))
             return False
@@ -385,14 +387,16 @@ class Bot_manager:
                     * 100
                     - 100,
                     "ticker": bot.sim.ticker,
-                    "tf":bot.sim.tf
+                    "tf": bot.sim.tf,
                 },
                 index=[0],
             )
             # print(df)
             c.create_csv_from_df(
                 trade_history,
-                "{}/{}/{}/{}_trade_history.csv".format("reports",matrix.name, name, name),
+                "{}/{}/{}/{}_trade_history.csv".format(
+                    "reports", matrix.name, name, name
+                ),
             )
 
             return df
@@ -442,6 +446,10 @@ class Bot_manager:
             {"size": 2, "value": 2, "pnl": 2, "fees": 2, "wallet": 2}
         )
         # print(trade_history)
+
+    def execute_limit_order(self, bot, order):
+
+        pass
 
 
 class Plotter:
@@ -533,7 +541,7 @@ class Plotter:
         return fig
 
     def make_chart_trades_report(
-        self, matrix_name,call_name, name, trade_history, bot, top=10, save=True
+        self, matrix_name, call_name, name, trade_history, bot, top=10, save=True
     ):
 
         """makes a chart for top and worst n trades in the trade history"""
@@ -545,14 +553,18 @@ class Plotter:
         n = 1
         for count in lstop:
             ch = self.get_raw_file_for_chart(call_name, trade_history, count)
-            ch = self.make_single_trade_graph(ch["raw"], ch["trade"], *bot.params['charting options'])
+            ch = self.make_single_trade_graph(
+                ch["raw"], ch["trade"], *bot.params["charting options"]
+            )
             if save:
                 ch.write_image("reports/{}/{}/top{}.png".format(matrix_name, name, n))
                 n += 1
         n = 1
         for count in lswor:
             ch = self.get_raw_file_for_chart(call_name, trade_history, count)
-            ch = self.make_single_trade_graph(ch["raw"], ch["trade"], *bot.params['charting options'])
+            ch = self.make_single_trade_graph(
+                ch["raw"], ch["trade"], *bot.params["charting options"]
+            )
             if save:
                 ch.write_image("reports/{}/{}/worst{}.png".format(matrix_name, name, n))
                 n += 1
@@ -592,23 +604,40 @@ class Plotter:
 
 
 class Matrix_manager:
-    '''For all that is relative to the Matrix'''
+    """For all that is relative to the Matrix"""
+
     def __init__(self):
         pass
 
     def name_matrix(self):
         return c.random_name()
 
-
     def get_session_results(self, matrix):
         df = None
         for bot in matrix.active_bots:
             if df is None:
-                df = b.get_results(matrix, bot, bot.trade_history
-                , bot.name, bot.style, bot.preset, bot.sim.raw_df)
+                df = b.get_results(
+                    matrix,
+                    bot,
+                    bot.trade_history,
+                    bot.name,
+                    bot.style,
+                    bot.preset,
+                    bot.sim.raw_df,
+                )
             else:
-                df = df.append(b.get_results(matrix, bot, bot.trade_history
-                , bot.name, bot.style, bot.preset,bot.sim.raw_df), ignore_index=True)
+                df = df.append(
+                    b.get_results(
+                        matrix,
+                        bot,
+                        bot.trade_history,
+                        bot.name,
+                        bot.style,
+                        bot.preset,
+                        bot.sim.raw_df,
+                    ),
+                    ignore_index=True,
+                )
 
                 df.to_csv("reports/{}/{}_report.csv".format(matrix.name, matrix.name))
                 df = df.sort_values(by="adj_roi", ascending=False)
@@ -627,14 +656,8 @@ class Matrix_manager:
         return df
 
 
-
-
-
-
-
 c = Constructor()
 d = DataFrame_manager()
 b = Bot_manager()
 p = Plotter()
 m = Matrix_manager()
-
