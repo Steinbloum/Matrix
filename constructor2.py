@@ -278,6 +278,29 @@ class Bot_manager:
         # print(value)
         return {"value": value, "size": size, "fees": self.get_fees(value)}
 
+    def buy_limit(self, bot, order):
+        """appends to the position dict"""
+        if order["value"] < 0:
+            value = order["value"] * -1
+            size = order["size"] * -1
+        else:
+            value = order["value"]
+            size = order["size"]
+        bot.position["value"] += value
+        bot.position["size"] += size
+        bot.position["fees"] = self.get_fees(value, market=False)
+        return {"value": value, "size": size, "fees": self.get_fees(value)}
+
+    def sell_limit(self, bot, order):
+        """appends to the position dict"""
+        size = order["size"] * -1
+        value = order["value"]
+
+        bot.position["value"] -= value
+        bot.position["size"] += size
+        bot.position["fees"] = self.get_fees(-value, market=False)
+        return {"value": value, "size": size, "fees": self.get_fees(value)}
+
     def store_transaction(
         self,
         sim,
@@ -446,10 +469,6 @@ class Bot_manager:
             {"size": 2, "value": 2, "pnl": 2, "fees": 2, "wallet": 2}
         )
         # print(trade_history)
-
-    def execute_limit_order(self, bot, order):
-
-        pass
 
 
 class Plotter:
